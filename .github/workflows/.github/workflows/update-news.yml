@@ -1,0 +1,27 @@
+name: Auto aktualizace zpráv
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # 7:00 UTC = 9:00 SEČ (Praha)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Stáhni aktuální zprávy
+      run: |
+        curl -s "https://newsapi.org/v2/top-headlines?country=cz&apiKey=27275041395845acac59c19ff0a28857" -o news.json
+        echo "<!DOCTYPE html><html lang='cs'><head><meta charset='UTF-8'><title>Denní přehled zpráv</title></head><body><h1>Denní přehled zpráv</h1>" > index.html
+        jq -r '.articles[] | "<p>📰 " + (.title // "") + "</p>"' news.json >> index.html
+        echo "</body></html>" >> index.html
+
+    - name: Commit & push
+      run: |
+        git config user.name "TeemoBot"
+        git config user.email "bot@teemo.com"
+        git add index.html
+        git commit -m "Auto aktualizace zpráv"
+        git push
