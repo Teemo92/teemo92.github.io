@@ -1,0 +1,35 @@
+name: Aktualizace denního přehledu zpráv
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # každý den v 9:00 ráno pražského času (UTC+2)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repozitář
+      uses: actions/checkout@v3
+
+    - name: Vytvoř soubor index.html
+      run: |
+        echo "<!DOCTYPE html>" > index.html
+        echo "<html lang='cs'><head><meta charset='UTF-8'><title>Denní přehled zpráv</title></head><body><h1>Denní přehled zpráv</h1>" >> index.html
+        echo "<p>📰 Politika: ..." >> index.html
+        echo "<p>⚔️ Ukrajina: ..." >> index.html
+        echo "<p>📈 Ekonomika: ..." >> index.html
+        echo "<p>💻 Technologie: ..." >> index.html
+        echo "<p>🤖 Umělá inteligence: ..." >> index.html
+        echo "<p>📱 Mobily & PC: ..." >> index.html
+        echo "<p>🏟 Sport: ..." >> index.html
+        echo "</body></html>" >> index.html
+
+    - name: Commit & push
+      run: |
+        git config user.name "TeemoBot"
+        git config user.email "bot@teemo.com"
+        git add index.html
+        git commit -m "Automatická aktualizace denního přehledu"
+        git push
